@@ -23,11 +23,9 @@ Unlike other extensions that read configuration tables for every ID generated, t
 
 ### High-Concurrency Safety
 
-    - **Advisory Locks:** Uses `pg_advisory_xact_lock` to ensure that a (Datacenter, Worker) pair never generates duplicate IDs, even under extreme parallel load.
-
-    - **HOT Updates:** The state table uses a low FILLFACTOR (10), ensuring that updates to sequence numbers are Heap Only Tuple (HOT) updates, which significantly reduces index bloat and vacuum pressure.
-
-    - **Unlogged State:** The sequence state is stored in an UNLOGGED table to skip WAL overhead, providing raw speed while maintaining transactional integrity within each ID request.
+- **Advisory Locks:** Uses `pg_advisory_xact_lock` to ensure that a (Datacenter, Worker) pair never generates duplicate IDs, even under extreme parallel load.
+- **HOT Updates:** The state table uses a low FILLFACTOR (10), ensuring that updates to sequence numbers are Heap Only Tuple (HOT) updates, which significantly reduces index bloat and vacuum pressure.
+- **Unlogged State:** The sequence state is stored in an UNLOGGED table to skip WAL overhead, providing raw speed while maintaining transactional integrity within each ID request.
 
 ## Installation
 
@@ -97,10 +95,8 @@ CREATE EXTENSION snowflake;
 ## Configuration
 
 The extension utilizes a dual-layer configuration system to balance global structural integrity with local node flexibility:
-
-    - **Relational Table** (`snowflake_config`): Stores the core blueprint, including bit-widths and the custom Epoch. This ensures that the ID structure remains consistent across the entire cluster. Changing these values requires a `snowflake_rebuild()` to "bake" the new constants into the generator function.
-
-    - **Grand Unified Configuration (GUC):** Uses PostgreSQL system settings (e.g., snowflake.worker_id) to identify individual database instances.
+- **Relational Table** (`snowflake_config`): Stores the core blueprint, including bit-widths and the custom Epoch. This ensures that the ID structure remains consistent across the entire cluster. Changing these values requires a `snowflake_rebuild()` to "bake" the new constants into the generator function.
+- **Grand Unified Configuration (GUC):** Uses PostgreSQL system settings (e.g., snowflake.worker_id) to identify individual database instances.
 
 ### Why this separation?
 
@@ -162,12 +158,9 @@ If you need to change the epoch or bit layout (e.g., more workers, fewer datacen
 ### Critical: Maintenance & Consistency
 
 Running snowflake_rebuild() is an atomic operation, but it has important side effects:
-
-    - **Table Locking:** It performs an **ACCESS EXCLUSIVE** lock on the state table. Active ID generation requests will pause and wait until the rebuild is finished.
-
-    - **State Reset:** It **TRUNCATES** the snowflake_state table. This ensures that old sequence counters don't overflow into new bit boundaries.
-
-    - **Plan Caching:** PostgreSQL caches function execution plans in long-lived sessions. After changing bit widths (e.g., bits_worker), you must restart application connections (or recycle your connection pool like PgBouncer) to ensure all sessions use the new bitwise constants.
+- **Table Locking:** It performs an **ACCESS EXCLUSIVE** lock on the state table. Active ID generation requests will pause and wait until the rebuild is finished.
+- **State Reset:** It **TRUNCATES** the snowflake_state table. This ensures that old sequence counters don't overflow into new bit boundaries.
+- **Plan Caching:** PostgreSQL caches function execution plans in long-lived sessions. After changing bit widths (e.g., bits_worker), you must restart application connections (or recycle your connection pool like PgBouncer) to ensure all sessions use the new bitwise constants.
 
 #### Note on Session Persistence:
 
