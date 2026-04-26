@@ -1,0 +1,4 @@
+# pg_flexflake.control
+comment = 'pg_flexflake: PostgreSQL high-performance, flexible Snowflake ID generator'
+default_version = '1.0'
+relocatable = true
