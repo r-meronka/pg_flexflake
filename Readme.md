@@ -71,8 +71,8 @@ Bash
 _Replace {SHAREDIR} with the path obtained from pg_config._
 
 ```bash
-sudo cp snowflake.control {SHAREDIR}/extension/
-sudo cp snowflake--1.0.sql {SHAREDIR}/extension/
+sudo cp pg_flexflake.control {SHAREDIR}/extension/
+sudo cp pg_flexflake--1.0.sql {SHAREDIR}/extension/
 ```
 
 #### 3. Verify Permissions
